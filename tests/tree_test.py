@@ -13,6 +13,10 @@ def test_answer():
     m = np.ones(N) / N
     h = np.repeat(0.01, N)
 
+    # print(f"x: {x}")
+    # print(f"m: {m}")
+    # print(f"h: {h}")
+
     accel_tree = Accel(x, m, h, method="tree", parallel=True)
     accel_bruteforce = Accel(x, m, h, method="bruteforce", parallel=True)
     phi_tree = Potential(x, m, h, method="tree", parallel=True)
@@ -25,3 +29,5 @@ def test_answer():
     np.save("phi_error.npy", phi_tree - phi_bruteforce)
     assert acc_error < 0.02
     assert phi_error < 0.02
+
+test_answer()

@@ -1,0 +1,5 @@
+build/*
+dist/*
+src/pytreegrav.egg*
+*.npy
+__pycache__

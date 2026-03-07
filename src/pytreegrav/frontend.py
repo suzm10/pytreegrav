@@ -10,7 +10,7 @@ from .misc import *
 
 
 def valueTestMethod(method):
-    methods = ["adaptive", "bruteforce", "tree"]
+    methods = ["adaptive", "bruteforce", "tree", "hnsw"]
 
     ## check if method is a str
     if type(method) != str:
@@ -379,6 +379,10 @@ def Accel(
             method = "tree"
         else:
             method = "bruteforce"
+    
+    if method == "hnsw":
+        print("using hnsw method")
+        return
 
     if method == "bruteforce":  # we're using brute force
         if parallel:

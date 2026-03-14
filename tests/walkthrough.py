@@ -11,17 +11,29 @@ m = np.repeat(1./N, N)
 # softening radii - these are optional, assumed 0 if not provided
 h = np.repeat(0.01, N)
 
+print(f"m: {m}")
+
 # print(Accel(x, m, h))
 # print(Potential(x, m, h))
 
 t = time()
-# accel_tree = Accel(x, m, h, method='tree', parallel=True)
+accel_tree = Accel(x, m, h, method='tree')
 # print("Tree accel runtime: %gs"%(time() - t)); t = time()
+print(f"accel_tree: {accel_tree}")
 
-# accel_bruteforce = Accel(x, m, h, method='bruteforce')
+accel_bruteforce = Accel(x, m, h, method='bruteforce')
 # print("Brute force accel runtime: %gs"%(time() - t)); t = time()
 
-accel_hnsw = Accel(x, m, h, method='hnsw')
+accel_hnsw = Accel(x, m, h, theta=0.4, method='hnsw')
+print(f"accel_hnsw: {accel_hnsw}")
+
+acc_error = np.sqrt(np.mean(np.sum((accel_hnsw-accel_bruteforce)**2,axis=1)))
+
+print(f"acc_error hnsw: {acc_error}")
+
+acc_error = np.sqrt(np.mean(np.sum((accel_tree-accel_bruteforce)**2,axis=1)))
+
+print(f"acc_error tree: {acc_error}")
 
 # phi_tree = Potential(x, m, h, method='tree', parallel=True)
 # print("Tree potential runtime: %gs"%(time() - t)); t = time()

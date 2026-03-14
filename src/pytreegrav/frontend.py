@@ -8,6 +8,7 @@ from .treewalk import *
 from .bruteforce import *
 from .misc import *
 from .graph import *
+from .graphwalk import *
 
 
 def valueTestMethod(method):
@@ -449,9 +450,12 @@ def Accel(
             np.float64(softening),
             quadrupole=quadrupole,
         )
-
-        return
-
+        g = AccelTarget_graph(pos, softening, graph, theta=theta, G=G, quadrupole=quadrupole)
+        if return_tree:
+            return g, graph
+        else:
+            return g
+        
     if method == "bruteforce":  # we're using brute force
         if parallel:
             g = Accel_bruteforce_parallel(pos, m, softening, G=G)

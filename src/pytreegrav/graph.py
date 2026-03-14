@@ -10,9 +10,9 @@ spec = [
     ("Masses", float64[:]),
     ("Softenings", float64[:]),
     ("Radii", float64[:]),
-    ("NodeLevels", int64[:]),
-    ("Neigbors", float64[:, :, :]),
-    ("Children", float64[:, :]),
+    # ("NodeLevels", int64[:]),
+    # ("Neigbors", float64[:, :, :]),
+    # ("Children", float64[:, :]),
     ("NumParticles", int64),
     ("NumNodes", int64),
     ("EntryPoint", int64), # idx of entry point node
@@ -51,6 +51,7 @@ class HNSWGraph:
         self.Softenings = zeros(self.NumNodes)
         self.Radii = zeros(self.NumNodes)
         self.NumLevels = 0
+        self.EntryPoint = -1
 
         self.AdjacencyList = np.full((self.NumNodes, self.M), -1, dtype=int64)
         self.DownwardLinks = np.full((self.NumNodes, self.M), -1, dtype=int64)
@@ -120,25 +121,28 @@ class HNSWGraph:
                     dy = self.Coordinates[memberIdx, 1] - self.Coordinates[centroidIdx, 1]
                     dz = self.Coordinates[memberIdx, 2] - self.Coordinates[centroidIdx, 2]
                     dist = np.sqrt(dx*dx + dy*dy + dz*dz)
-                    if dist > maxRad: 
-                        maxRad = dist
+
+                    child_edge = dist + (self.Radii[memberIdx] / 2.0)
+
+                    if child_edge > maxRad: 
+                        maxRad = child_edge
 
                 print(f"members: {members}")
                 print(f"len(members): {len(members)}")
                 print(f"self.Radii[members]: {self.Radii[members]}")
                 
-                self.Radii[centroidIdx] = maxRad + np.max(self.Radii[members])
+                self.Radii[centroidIdx] = 2.0 * maxRad #+ np.max(self.Radii[members])
                 # print("9")
 
                 nextAvailIdx += 1
 
             currLayerNodeIdxs = newLayerIdxs
 
-        print("self.Masses[self.EntryPoint]: ", self.Masses[self.EntryPoint])
-        totalMass = 0
-        for m in masses:
-            totalMass += m
-        print("totalMass: ", totalMass)
+        # print("self.Masses[self.EntryPoint]: ", self.Masses[self.EntryPoint])
+        # totalMass = 0
+        # for m in masses:
+        #     totalMass += m
+        # print("totalMass: ", totalMass)
 
 @njit(int64(int64), fastmath=True)
 def spread_bits(x):

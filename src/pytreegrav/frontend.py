@@ -7,6 +7,7 @@ from .dynamic_tree import *
 from .treewalk import *
 from .bruteforce import *
 from .misc import *
+from .graph import *
 
 
 def valueTestMethod(method):
@@ -102,6 +103,67 @@ def ConstructTree(
         )
     else:
         return DynamicOctree(pos, m, softening, vel, quadrupole=quadrupole)
+    
+def ConstructGraph(
+    pos,
+    m=None,
+    softening=None,
+    quadrupole=False,
+    vel=None,
+    compute_moments=True,
+    morton_order=True,
+):
+    """Builds a graph containing particle data, for subsequent potential/field evaluation
+
+    Parameters
+    ----------
+    pos: array_like
+        shape (N,3) array of particle positions
+    m: array_like or None, optional
+        shape (N,) array of particle masses - if None then zeros will be used (e.g. if all you need the tree for is spatial algorithms)
+    softening: array_like or None, optional
+        shape (N,) array of particle softening lengths - these give the radius of compact support of the M4 cubic spline mass distribution of each particle
+    quadrupole: bool, optional
+        Whether to store quadrupole moments (default False)
+    vel: bool, optional
+        Whether to store node velocities in the tree (default False)
+
+    Returns
+    -------
+    graph: hnsw graph
+        Graph instance built from particle data
+    """
+
+    warn_if_nonunique_positions(pos, softening)
+
+    if m is None:
+        m = zeros(len(pos))
+        compute_moments = False
+    if softening is None:
+        softening = zeros_like(m)
+    if not (np.all(np.isfinite(pos)) and np.all(np.isfinite(m)) and np.all(np.isfinite(softening))):
+        print("Invalid input detected - aborting treebuild to avoid going into an infinite loop!")
+        raise
+    
+    return HNSWGraph(
+        pos,
+        m,
+        softening,
+        quadrupole=quadrupole,
+        compute_moments=compute_moments,
+        morton_order=morton_order,
+    )
+    # if vel is None:
+    #     return Octree(
+    #         pos,
+    #         m,
+    #         softening,
+    #         quadrupole=quadrupole,
+    #         compute_moments=compute_moments,
+    #         morton_order=morton_order,
+    #     )
+    # else:
+    #     return DynamicOctree(pos, m, softening, vel, quadrupole=quadrupole)
 
 
 def Potential(
@@ -381,7 +443,13 @@ def Accel(
             method = "bruteforce"
     
     if method == "hnsw":
-        print("using hnsw method")
+        graph = ConstructGraph(
+            np.float64(pos),
+            np.float64(m),
+            np.float64(softening),
+            quadrupole=quadrupole,
+        )
+
         return
 
     if method == "bruteforce":  # we're using brute force

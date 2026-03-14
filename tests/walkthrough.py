@@ -18,10 +18,10 @@ t = time()
 # accel_tree = Accel(x, m, h, method='tree', parallel=True)
 # print("Tree accel runtime: %gs"%(time() - t)); t = time()
 
-accel_bruteforce = Accel(x, m, h, method='bruteforce')
-print("Brute force accel runtime: %gs"%(time() - t)); t = time()
+# accel_bruteforce = Accel(x, m, h, method='bruteforce')
+# print("Brute force accel runtime: %gs"%(time() - t)); t = time()
 
-# accel_hnsw = Accel(x, m, h, method='hnsw')
+accel_hnsw = Accel(x, m, h, method='hnsw')
 
 # phi_tree = Potential(x, m, h, method='tree', parallel=True)
 # print("Tree potential runtime: %gs"%(time() - t)); t = time()

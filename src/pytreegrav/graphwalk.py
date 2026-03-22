@@ -31,14 +31,14 @@ def AccelWalk_HNSW(pos, target_idx, graph, softening=0, theta=0.7, G=1.0):
         # node is a leaf node
         if node_idx < graph.N:
             if node_idx != target_idx:
-                fac = (G * graph.Masses[node_idx]) / (r2 * r)
+                fac = (graph.Masses[node_idx]) / (r2 * r)
                 accel[0] += fac * dx
                 accel[1] += fac * dy
                 accel[2] += fac * dz
         else:
             # node is sufficiently far away
             if theta > (graph.Radii[node_idx] / r):
-                fac = (G * graph.Masses[node_idx]) / (r2 * r)
+                fac = (graph.Masses[node_idx]) / (r2 * r)
                 accel[0] += fac * dx
                 accel[1] += fac * dy
                 accel[2] += fac * dz
@@ -56,7 +56,7 @@ def AccelTarget_graph(pos_target, softening_target, graph, theta=0.7, G=1.0, qua
     Arguments:
     pos_target -- shape (N,3) array of positions at which to evaluate the field
     softening_target -- shape (N,) array of *minimum* softening lengths to be used in all accel computations
-    tree -- Octree instance containing the positions, masses, and softenings of the source particles
+    graph -- Graph instance containing the positions, masses, and softenings of the source particles
     Optional arguments:
     G -- gravitational constant (default 1.0)
     theta -- accuracy parameter, smaller is more accurate, larger is faster (default 0.7)
@@ -71,7 +71,7 @@ def AccelTarget_graph(pos_target, softening_target, graph, theta=0.7, G=1.0, qua
     N = len(pos_target)
 
     for i in prange(N):
-        result[i] = AccelWalk_HNSW(pos_target[i], i, graph, softening_target[i], theta, G)
+        result[i] = G * AccelWalk_HNSW(pos_target[i], i, graph, softening_target[i], theta, G)
     
     return result
 

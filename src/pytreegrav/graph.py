@@ -94,7 +94,9 @@ class HNSWGraph:
                 members = currLayerNodeIdxs[assignments == c]
                 # print("4")
 
-                if len(members) == 0:
+                numMembers = len(members)
+
+                if numMembers == 0:
                     # print("len(members) shouldn't be 0")
                     continue
 
@@ -102,7 +104,7 @@ class HNSWGraph:
                 COM = np.zeros(3)
                 # print("5")
 
-                for i in range(len(members)):
+                for i in range(numMembers):
                     memberIdx = members[i]
                     totalMass += self.Masses[memberIdx]
                     COM += self.Masses[memberIdx] * self.Coordinates[memberIdx]
@@ -115,7 +117,7 @@ class HNSWGraph:
                 # print("7")
 
                 maxRad = 0.0
-                for i in range(len(members)):
+                for i in range(numMembers):
                     memberIdx = members[i]
                     dx = self.Coordinates[memberIdx, 0] - self.Coordinates[centroidIdx, 0]
                     dy = self.Coordinates[memberIdx, 1] - self.Coordinates[centroidIdx, 1]
@@ -131,7 +133,7 @@ class HNSWGraph:
                 # print(f"len(members): {len(members)}")
                 # print(f"self.Radii[members]: {self.Radii[members]}")
                 
-                self.Radii[centroidIdx] = 2.0 * maxRad #+ np.max(self.Radii[members])
+                self.Radii[centroidIdx] = maxRad #+ np.max(self.Radii[members])
                 # print("9")
 
                 nextAvailIdx += 1

@@ -7,7 +7,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 @njit(fastmath=True)
-def AccelWalk_HNSW(pos, target_idx, graph, softening=0, theta=0.7, G=1.0):
+def AccelWalk_HNSW(pos, target_idx, graph, softening=0, theta=0.7):
     accel = np.zeros(3, dtype=np.float64)
 
     stack = np.full(graph.MaxNumLevels * graph.M, -1, dtype=int64)
@@ -19,9 +19,10 @@ def AccelWalk_HNSW(pos, target_idx, graph, softening=0, theta=0.7, G=1.0):
         node_idx = stack[stack_ptr]
 
         if node_idx == -1:
+            print(f"why is node_idx -1?")
             continue
         
-        # calculate dist to post
+        # calculate dist to pos
         dx = graph.Coordinates[node_idx, 0] - pos[0]
         dy = graph.Coordinates[node_idx, 1] - pos[1]
         dz = graph.Coordinates[node_idx, 2] - pos[2]
@@ -71,7 +72,7 @@ def AccelTarget_graph(pos_target, softening_target, graph, theta=0.7, G=1.0, qua
     N = len(pos_target)
 
     for i in prange(N):
-        result[i] = G * AccelWalk_HNSW(pos_target[i], i, graph, softening_target[i], theta, G)
+        result[i] = G * AccelWalk_HNSW(pos_target[i], i, graph, softening_target[i], theta)
     
     return result
 

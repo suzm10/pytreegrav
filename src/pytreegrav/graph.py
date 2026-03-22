@@ -124,7 +124,7 @@ class HNSWGraph:
                     dz = self.Coordinates[memberIdx, 2] - self.Coordinates[centroidIdx, 2]
                     dist = np.sqrt(dx*dx + dy*dy + dz*dz)
 
-                    child_edge = dist + (self.Radii[memberIdx] / 2.0)
+                    child_edge = dist + (self.Radii[memberIdx] / 2)
 
                     if child_edge > maxRad: 
                         maxRad = child_edge

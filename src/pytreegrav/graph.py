@@ -37,11 +37,11 @@ class HNSWGraph:
         compute_moments=True,   
     ):
         self.N = len(points)
-        print(f"N: {self.N}")
+        # print(f"N: {self.N}")
         self.M = 16
 
         self.MaxNumLevels = int(np.ceil(np.log(self.N) / np.log(self.M))) + 2
-        print(f"self.MaxNumLevels: {self.MaxNumLevels}")
+        # print(f"self.MaxNumLevels: {self.MaxNumLevels}")
         estCentroids = int(self.N // (self.M - 1) * 1.1)
         self.NumNodes = self.N + estCentroids
 
@@ -67,7 +67,7 @@ class HNSWGraph:
             ## cluster nodes
             currNumNodes = len(currLayerNodeIdxs)
             if currNumNodes == 1:
-                print(f"found entry point")
+                # print(f"found entry point")
                 self.EntryPoint = currLayerNodeIdxs[0]
                 self.NumLevels = l
                 break
@@ -77,16 +77,16 @@ class HNSWGraph:
                 currLayerNodeIdxs,
                 self.M
             )
-            print(f"l: {l}")
-            print(f"numCentroids: {numCentroids}")
-            print(f"assignments: {assignments}")
+            # print(f"l: {l}")
+            # print(f"numCentroids: {numCentroids}")
+            # print(f"assignments: {assignments}")
 
             newLayerIdxs = np.empty(numCentroids, dtype=int64)
             # print("1")
 
             for c in range(numCentroids):
                 # print("2")
-                print(f"centroid: {c}")
+                # print(f"centroid: {c}")
                 centroidIdx = nextAvailIdx
                 newLayerIdxs[c] = centroidIdx
                 # print("3")
@@ -95,7 +95,7 @@ class HNSWGraph:
                 # print("4")
 
                 if len(members) == 0:
-                    print("len(members) shouldn't be 0")
+                    # print("len(members) shouldn't be 0")
                     continue
 
                 totalMass = 0
@@ -127,9 +127,9 @@ class HNSWGraph:
                     if child_edge > maxRad: 
                         maxRad = child_edge
 
-                print(f"members: {members}")
-                print(f"len(members): {len(members)}")
-                print(f"self.Radii[members]: {self.Radii[members]}")
+                # print(f"members: {members}")
+                # print(f"len(members): {len(members)}")
+                # print(f"self.Radii[members]: {self.Radii[members]}")
                 
                 self.Radii[centroidIdx] = 2.0 * maxRad #+ np.max(self.Radii[members])
                 # print("9")

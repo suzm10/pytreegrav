@@ -17,15 +17,17 @@ print(f"m: {m}")
 # print(Potential(x, m, h))
 
 t = time()
-accel_tree = Accel(x, m, h, method='tree')
-# print("Tree accel runtime: %gs"%(time() - t)); t = time()
-print(f"accel_tree: {accel_tree}")
+accel_tree = Accel(x, m, h, theta=0.4, method='tree')
+print("Tree accel runtime: %gs"%(time() - t)); t = time()
+# print(f"accel_tree: {accel_tree}")
 
 accel_bruteforce = Accel(x, m, h, method='bruteforce')
-# print("Brute force accel runtime: %gs"%(time() - t)); t = time()
+print("Brute force accel runtime: %gs"%(time() - t)); t = time()
 
 accel_hnsw = Accel(x, m, h, theta=0.4, method='hnsw')
-print(f"accel_hnsw: {accel_hnsw}")
+print("HNSW accel runtime: %gs"%(time() - t)); t = time()
+
+# print(f"accel_hnsw: {accel_hnsw}")
 
 acc_error = np.sqrt(np.mean(np.sum((accel_hnsw-accel_bruteforce)**2,axis=1)))
 

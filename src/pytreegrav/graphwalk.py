@@ -64,6 +64,7 @@ def AccelTarget_graph(pos_target, softening_target, graph, theta=0.7, G=1.0, qua
     Returns:
     shape (N,3) array of acceleration values at each point in pos_target
     """
+    print("AccelWalk_HNSW theta: ", theta)
     # if softening_target is None:
     #     softening_target = zeros(pos_target.shape[0])
     result = empty(pos_target.shape)

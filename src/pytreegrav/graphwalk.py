@@ -26,24 +26,22 @@ def AccelWalk_HNSW(pos, target_idx, graph, softening=0, theta=0.7):
         dx = graph.Coordinates[node_idx, 0] - pos[0]
         dy = graph.Coordinates[node_idx, 1] - pos[1]
         dz = graph.Coordinates[node_idx, 2] - pos[2]
-        r2 = dx*dx + dy*dy + dz*dz + graph.Softenings[node_idx]**2
+        r2 = dx*dx + dy*dy + dz*dz #+ graph.Softenings[node_idx]**2
         r = np.sqrt(r2)
         h = max(graph.Softenings[node_idx], softening)
 
         # node is a leaf node
         if node_idx < graph.N:
-            if node_idx != target_idx:
-                fac = (graph.Masses[node_idx]) / (r2 * r)
+            if node_idx != target_idx and r > 0:
+                fac = graph.Masses[node_idx] * ForceKernel(r, h)
                 accel[0] += fac * dx
                 accel[1] += fac * dy
                 accel[2] += fac * dz
         else:
+            size = graph.Radii[node_idx]
             # node is sufficiently far away
-            if theta > (graph.Radii[node_idx] / r):
-                if r < h:
-                    fac = graph.Masses[node_idx] * ForceKernel(r, h)
-                else:
-                    fac = (graph.Masses[node_idx]) / (r2 * r)
+            if r > max(size / theta, h + size * 0.6):
+                fac = graph.Masses[node_idx] * ForceKernel(r, h)
                 accel[0] += fac * dx
                 accel[1] += fac * dy
                 accel[2] += fac * dz

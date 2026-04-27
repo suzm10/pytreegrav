@@ -104,13 +104,18 @@ class HNSWGraph:
                 COM = np.zeros(3)
                 # print("5")
 
+                maxSoftening = 0.0
                 for i in range(numMembers):
                     memberIdx = members[i]
+                    if self.Softenings[memberIdx] > maxSoftening:
+                        maxSoftening = self.Softenings[memberIdx]
                     totalMass += self.Masses[memberIdx]
                     COM += self.Masses[memberIdx] * self.Coordinates[memberIdx]
 
                     self.DownwardLinks[centroidIdx, i] = memberIdx
                 # print("6")
+
+                self.Softenings[centroidIdx] = maxSoftening
                 
                 self.Masses[centroidIdx] = totalMass
                 self.Coordinates[centroidIdx] = COM / totalMass
@@ -124,7 +129,7 @@ class HNSWGraph:
                     dz = self.Coordinates[memberIdx, 2] - self.Coordinates[centroidIdx, 2]
                     dist = np.sqrt(dx*dx + dy*dy + dz*dz)
 
-                    child_edge = dist + (self.Radii[memberIdx] / 2)
+                    child_edge = dist + (self.Radii[memberIdx])
 
                     if child_edge > maxRad: 
                         maxRad = child_edge

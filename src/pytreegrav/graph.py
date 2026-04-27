@@ -9,6 +9,7 @@ spec = [
     ("Coordinates", float64[:, :]),
     ("Masses", float64[:]),
     ("Softenings", float64[:]),
+    ("Deltas", float64[:]),
     ("Radii", float64[:]),
     # ("NodeLevels", int64[:]),
     # ("Neigbors", float64[:, :, :]),
@@ -48,6 +49,7 @@ class HNSWGraph:
         # initialize arrays
         self.Coordinates = zeros((self.NumNodes, 3))
         self.Masses = zeros(self.NumNodes)
+        self.Deltas = zeros(self.NumNodes)
         self.Softenings = zeros(self.NumNodes)
         self.Radii = zeros(self.NumNodes)
         self.NumLevels = 0
@@ -59,6 +61,7 @@ class HNSWGraph:
         self.Coordinates[:self.N] = points
         self.Masses[:self.N] = masses
         self.Softenings[:self.N] = softening
+        self.Deltas[:self.N] = 0.0
 
         currLayerNodeIdxs = np.arange(self.N)
         nextAvailIdx = self.N
@@ -104,7 +107,7 @@ class HNSWGraph:
                 COM = np.zeros(3)
                 # print("5")
 
-                maxSoftening = 0.0
+                maxSoftening = 0.0; geom_cx = 0.0; geom_cy = 0.0; geom_cz = 0.0
                 for i in range(numMembers):
                     memberIdx = members[i]
                     if self.Softenings[memberIdx] > maxSoftening:
@@ -113,13 +116,21 @@ class HNSWGraph:
                     COM += self.Masses[memberIdx] * self.Coordinates[memberIdx]
 
                     self.DownwardLinks[centroidIdx, i] = memberIdx
+
+                    geom_cx += self.Coordinates[memberIdx, 0]
+                    geom_cy += self.Coordinates[memberIdx, 1]
+                    geom_cz += self.Coordinates[memberIdx, 2]
                 # print("6")
+                geom_cx /= numMembers; geom_cy /= numMembers; geom_cz /= numMembers
 
                 self.Softenings[centroidIdx] = maxSoftening
                 
                 self.Masses[centroidIdx] = totalMass
                 self.Coordinates[centroidIdx] = COM / totalMass
-                # print("7")
+                ddx = self.Coordinates[centroidIdx, 0] - geom_cx
+                ddy = self.Coordinates[centroidIdx, 1] - geom_cy
+                ddz = self.Coordinates[centroidIdx, 2] - geom_cz
+                self.Deltas[centroidIdx] = np.sqrt(ddx*ddx + ddy*ddy + ddz*ddz)
 
                 maxRad = 0.0
                 for i in range(numMembers):
@@ -256,8 +267,6 @@ def ClusterNodes(coords, idxs, M):
 #         self.Neighbors = -ones(self.MaxNumLevels, self.NumNodes, self.M)
 
         
-
-
 spec2 = [
     ("Sizes", float64[:]),  # side length of tree nodes
     ("Deltas", float64[:]),  # distance between COM and geometric center of node

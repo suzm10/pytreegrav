@@ -34,6 +34,9 @@ acc_error = np.sqrt(np.mean(np.sum((accel_tree-accel_bruteforce)**2,axis=1)))
 
 print(f"acc_error tree: {acc_error}")
 
+accel_bruteforce = Accel(x, m, h, method='bruteforce', parallel=True)
+print("Brute force accel runtime: %gs"%(time() - t)); t = time()
+
 accel_tree = Accel(x, m, h, theta=0.4, method='tree', parallel=True)
 print("Tree accel runtime in parallel: %gs"%(time() - t)); t = time()
 
@@ -58,7 +61,7 @@ print("HNSW accel runtime in parallel: %gs"%(time() - t)); t = time()
 def tree_results(theta):
     t = time()
     print(f"theta: {theta}")
-    accel_tree = Accel(x, m, h, theta=theta, method='tree')
+    accel_tree = Accel(x, m, h, theta=theta, method='tree', parallel=True)
     print("Tree accel runtime: %gs"%(time() - t))
 
     acc_error = np.sqrt(np.mean(np.sum((accel_tree-accel_bruteforce)**2,axis=1)))
@@ -67,24 +70,34 @@ def tree_results(theta):
 def graph_results(theta):
     t = time()
     print(f"theta: {theta}")
-    accel_hnsw = Accel(x, m, h, theta=theta, method='hnsw')
+    accel_hnsw = Accel(x, m, h, theta=theta, method='hnsw', parallel=True)
     print("HNSW accel runtime: %gs"%(time() - t)); t = time()
 
     acc_error = np.sqrt(np.mean(np.sum((accel_hnsw-accel_bruteforce)**2,axis=1)))
     print(f"acc_error hnsw: {acc_error}")
 
 
-# tree_results(.001)
-# tree_results(.2)
-# tree_results(.4)
-# tree_results(.6)
-# tree_results(.8)
-# tree_results(1)
+tree_results(.001)
+tree_results(.1)
+tree_results(.2)
+tree_results(.3)
+tree_results(.4)
+tree_results(.5)
+tree_results(.6)
+tree_results(.7)
+tree_results(.8)
+tree_results(.9)
+tree_results(1)
 
-# graph_results(.001)
-# graph_results(.2)
-# graph_results(.4)
-# graph_results(.6)
-# graph_results(.8)
-# graph_results(1)
+graph_results(.001)
+graph_results(.1)
+graph_results(.2)
+graph_results(.3)
+graph_results(.4)
+graph_results(.5)
+graph_results(.6)
+graph_results(.7)
+graph_results(.8)
+graph_results(.9)
+graph_results(1)
 

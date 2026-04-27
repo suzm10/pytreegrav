@@ -40,7 +40,7 @@ def AccelWalk_HNSW(pos, target_idx, graph, softening=0, theta=0.7):
         else:
             size = graph.Radii[node_idx]
             # node is sufficiently far away
-            if r > max(size / theta, h + size * 0.6):
+            if r > max(size / theta, h + size * 0.6 + graph.Deltas[node_idx]):
                 fac = graph.Masses[node_idx] * ForceKernel(r, h)
                 accel[0] += fac * dx
                 accel[1] += fac * dy

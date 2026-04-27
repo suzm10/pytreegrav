@@ -28,6 +28,7 @@ def AccelWalk_HNSW(pos, target_idx, graph, softening=0, theta=0.7):
         dz = graph.Coordinates[node_idx, 2] - pos[2]
         r2 = dx*dx + dy*dy + dz*dz + graph.Softenings[node_idx]**2
         r = np.sqrt(r2)
+        h = max(graph.Softenings[node_idx], softening)
 
         # node is a leaf node
         if node_idx < graph.N:
@@ -39,7 +40,10 @@ def AccelWalk_HNSW(pos, target_idx, graph, softening=0, theta=0.7):
         else:
             # node is sufficiently far away
             if theta > (graph.Radii[node_idx] / r):
-                fac = (graph.Masses[node_idx]) / (r2 * r)
+                if r < h:
+                    fac = graph.Masses[node_idx] * ForceKernel(r, h)
+                else:
+                    fac = (graph.Masses[node_idx]) / (r2 * r)
                 accel[0] += fac * dx
                 accel[1] += fac * dy
                 accel[2] += fac * dz
@@ -64,18 +68,19 @@ def AccelTarget_graph(pos_target, softening_target, graph, theta=0.7, G=1.0, qua
     Returns:
     shape (N,3) array of acceleration values at each point in pos_target
     """
-    print("AccelWalk_HNSW theta: ", theta)
+    # print("AccelWalk_HNSW theta: ", theta)
     # if softening_target is None:
     #     softening_target = zeros(pos_target.shape[0])
     result = empty(pos_target.shape)
-    # set_parallel_chunksize(10000)
+    set_parallel_chunksize(10000)
 
     N = len(pos_target)
 
     for i in prange(N):
-        result[i] = G * AccelWalk_HNSW(pos_target[i], i, graph, softening_target[i], theta)
+        result[i] = G * AccelWalk_HNSW(pos=pos_target[i], target_idx=i, graph=graph, softening=softening_target[i], theta=theta)
     
     return result
 
 
+AccelTarget_graph_parallel = njit(AccelTarget_graph, fastmath=True, parallel=True)
 AccelTarget_graph = njit(AccelTarget_graph, fastmath=True)

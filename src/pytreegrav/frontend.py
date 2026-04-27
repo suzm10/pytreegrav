@@ -443,18 +443,6 @@ def Accel(
         else:
             method = "bruteforce"
     
-    if method == "hnsw":
-        graph = ConstructGraph(
-            np.float64(pos),
-            np.float64(m),
-            np.float64(softening),
-            quadrupole=quadrupole,
-        )
-        g = AccelTarget_graph(pos, softening, graph, theta=theta, G=G, quadrupole=quadrupole)
-        if return_tree:
-            return g, graph
-        else:
-            return g
         
     if method == "bruteforce":  # we're using brute force
         if parallel:
@@ -463,7 +451,7 @@ def Accel(
             g = Accel_bruteforce(pos, m, softening, G=G)
         if return_tree:
             tree = None
-    else:  # we're using the tree algorithm
+    elif method == "tree":  # we're using the tree algorithm
         if tree is None:
             tree = ConstructTree(
                 np.float64(pos),
@@ -484,6 +472,24 @@ def Accel(
 
         # now g is in the tree-order: reorder it back to the original order
         g = np.take(g, idx.argsort(), axis=0)
+    elif method == "hnsw":
+        graph = ConstructGraph(
+            np.float64(pos),
+            np.float64(m),
+            np.float64(softening),
+            quadrupole=quadrupole,
+        )
+        # pos_sorted = np.take(pos, idx, axis=0)
+        
+        if parallel:
+            g = AccelTarget_graph_parallel(pos, softening, graph, theta=theta, G=G, quadrupole=quadrupole)
+        else:
+            g = AccelTarget_graph(pos, softening, graph, theta=theta, G=G, quadrupole=quadrupole)
+
+        if return_tree:
+            return g, graph
+        else:
+            return g
 
     if return_tree:
         return g, tree
